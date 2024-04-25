@@ -1,0 +1,346 @@
+---
+title: Analysis of Hummingbird Feeders & Zingiber spectabile
+author: <a href="http://researcher.website.com/">Ariyana Parker</a>
+date: "4/25/2024"
+toc: true
+toc-depth: 2
+toc-location: left
+number-sections: true
+highlight-style: pygments
+format:
+  html:
+    df-print: kable
+    code-fold: show
+    code-tools: true
+    css: qmd.css
+editor_options: 
+  chunk_output_type: console
+---
+
+
+<!-- this code add line numbers to code blocks -->
+<!-- only works when code folding is not used in yaml (code_folding: show) -->
+
+```{=html}
+<style>
+body
+  { counter-reset: source-line 0; }
+pre.numberSource code
+  { counter-reset: none; }
+</style>
+```
+
+```{r set root directory, echo = FALSE}
+
+# set working directory 
+knitr::opts_knit$set(root.dir =  "..")
+
+```
+
+```{r add link to github repo, echo = FALSE, results='asis'}
+
+# print link to github repo if any
+if (file.exists("./.git/config")){
+  config <- readLines("./.git/config")
+  url <- grep("url",  config, value = TRUE)
+  url <- gsub("\\turl = |.git$", "", url)
+  cat("\nSource code and data found at [", url, "](", url, ")", sep = "")
+  }
+
+```
+
+```{r setup style, echo = FALSE, message = FALSE, warning=FALSE}
+
+# options to customize chunk outputs
+knitr::opts_chunk$set(
+  class.source = "numberLines lineAnchors", # for code line numbers
+  tidy.opts = list(width.cutoff = 65), 
+  tidy = TRUE,
+  message = FALSE
+ )
+
+```
+
+
+![](research pic.jpg)
+
+![](MVI_4294.MP4)
+
+
+<!-- skyblue box -->
+
+::: {.alert .alert-info}
+
+# Purpose {.unnumbered .unlisted}
+
+- The first goal of this report is to determine the correlation of Territorial species and feeding times.
+
+- The second goal of this report is to find a difference in feeding behaviors between Router species and Territorial species.
+
+:::
+
+&nbsp; 
+
+
+<!-- light brown box -->
+
+
+&nbsp;
+
+```
+# Load packages {.unnumbered .unlisted}
+
+```{r}
+
+library(sketchy)
+load_packages(packages = c("readxl", "ggplot2", "viridis", "ggdist", "gghalves"))
+
+```
+
+
+# Raw data
+
+```{r}
+
+dat <- read_xlsx("./data/raw/CS Datasheet.xlsx", na = "N/A")
+
+head(dat, 4)
+
+```
+
+
+# Format data
+```{r}
+
+
+# fix species names
+dat$Hummer_Species <- gsub("Phaethornis Guy", "Phaethornis guy", dat$Hummer_Species)
+
+dat <- dat[dat$Hummer_Species != "UNK", ]
+
+dat$Num_Probed_Flowers <- as.numeric(dat$Num_Probed_Flowers)
+dat$`Time_Probed (s.ms)` <- as.numeric(dat$`Time_Probed (s.ms)`)
+
+dat$prop.probed <- dat$`Time_Probed (s.ms)` / dat$`Total_Visit_Time (s.ms)`
+
+dat <- dat[dat$prop.probed <= 1, ]
+
+dat <- dat[!is.na(dat$Hummer_Species), ]
+
+dat$strategy <- ifelse(dat$Hummer_Species %in% c("Phaethornis Striigularis", "Phaethornis guy"), "Router", "Territorial")
+
+dat$Hummer_Species <- factor(dat$Hummer_Species, levels = c( "Amazilia Tzactl", "Thalurania Colombica",          "Phaethornis Striigularis", "Phaethornis guy"))
+
+```
+
+Sample sizes
+```{r}
+as.data.frame(table(dat$Hummer_Species))
+
+```
+
+
+# Exploratory graphs / stats
+
+Proportion of time feeding
+```{r}
+
+cols <- viridis(10)
+
+# raincoud plot:
+fill_color <- adjustcolor("#B4DE2C99", 0.6)
+
+ggplot(dat, aes(y = prop.probed, x = Hummer_Species, fill = strategy)) +
+    
+    # add half-violin from {ggdist} package
+  ggdist::stat_halfeye(
+    # fill = fill_color,
+    alpha = 0.5,
+    # custom bandwidth
+    adjust = .5,
+    # adjust height
+    width = .6,
+    .width = 0,
+    # move geom to the cright
+    justification = -.2,
+    point_colour = NA
+  ) +
+    scale_fill_viridis_d(begin = 0.2, end = 0.8) +
+  geom_boxplot(
+      # fill = fill_color,
+    width = .15,
+    # remove outliers
+    outlier.shape = NA # `outlier.shape = NA` works as well
+  ) +
+  # add justified jitter from the {gghalves} package
+  gghalves::geom_half_point(
+    # color = fill_color,
+    # draw jitter on the left
+    side = "l",
+    # control range of jitter
+    range_scale = .4,
+    # add some transparency
+    alpha = .5,
+  )  + labs(x = "Species", y = "Proportion of\ntime feeding") + 
+    theme(axis.text.x = element_text(angle = 15, hjust = 1)) 
+
+mod <- lm(prop.probed ~ Hummer_Species, dat)
+
+summary(mod)
+```
+
+Number of flowers probed
+```{r}
+
+ggplot(dat, aes(y = Num_Probed_Flowers, x = Hummer_Species, fill = strategy)) +
+    
+    # add half-violin from {ggdist} package
+  ggdist::stat_halfeye(
+    # fill = fill_color,
+    alpha = 0.5,
+    # custom bandwidth
+    adjust = .5,
+    # adjust height
+    width = .6,
+    .width = 0,
+    # move geom to the cright
+    justification = -.2,
+    point_colour = NA
+  ) +
+    scale_fill_viridis_d(begin = 0.2, end = 0.8) +
+  geom_boxplot(
+      # fill = fill_color,
+    width = .15,
+    # remove outliers
+    outlier.shape = NA # `outlier.shape = NA` works as well
+  ) +
+  # add justified jitter from the {gghalves} package
+  gghalves::geom_half_point(
+    # color = fill_color,
+    # draw jitter on the left
+    side = "l",
+    # control range of jitter
+    range_scale = .4,
+    # add some transparency
+    alpha = .5,
+  )  + labs(x = "Species", y = "Number of flowers probed") + 
+    theme(axis.text.x = element_text(angle = 15, hjust = 1)) 
+
+
+mod <- lm(Num_Probed_Flowers ~ Hummer_Species, dat)
+
+summary(mod)
+```
+
+Time spent probing
+```{r}
+
+ggplot(dat, aes(y = `Time_Probed (s.ms)`, x = Hummer_Species, fill = strategy)) +
+    
+    # add half-violin from {ggdist} package
+  ggdist::stat_halfeye(
+    # fill = fill_color,
+    alpha = 0.5,
+    # custom bandwidth
+    adjust = .5,
+    # adjust height
+    width = .6,
+    .width = 0,
+    # move geom to the cright
+    justification = -.2,
+    point_colour = NA
+  ) +
+    scale_fill_viridis_d(begin = 0.2, end = 0.8) +
+  geom_boxplot(
+      # fill = fill_color,
+    width = .15,
+    # remove outliers
+    outlier.shape = NA # `outlier.shape = NA` works as well
+  ) +
+  # add justified jitter from the {gghalves} package
+  gghalves::geom_half_point(
+    # color = fill_color,
+    # draw jitter on the left
+    side = "l",
+    # control range of jitter
+    range_scale = .4,
+    # add some transparency
+    alpha = .5,
+  )  + labs(x = "Species", y = "Time probed (s)") + 
+    theme(axis.text.x = element_text(angle = 15, hjust = 1)) 
+
+mod <- lm(`Time_Probed (s.ms)` ~ Hummer_Species, dat)
+
+summary(mod)
+```
+
+Total visit time 
+```{r}
+
+ggplot(dat, aes(y = `Total_Visit_Time (s.ms)`, x = Hummer_Species, fill = strategy)) +
+    
+    # add half-violin from {ggdist} package
+  ggdist::stat_halfeye(
+    # fill = fill_color,
+    alpha = 0.5,
+    # custom bandwidth
+    adjust = .5,
+    # adjust height
+    width = .6,
+    .width = 0,
+    # move geom to the cright
+    justification = -.2,
+    point_colour = NA
+  ) +
+    scale_fill_viridis_d(begin = 0.2, end = 0.8) +
+  geom_boxplot(
+      # fill = fill_color,
+    width = .15,
+    # remove outliers
+    outlier.shape = NA # `outlier.shape = NA` works as well
+  ) +
+  # add justified jitter from the {gghalves} package
+  gghalves::geom_half_point(
+    # color = fill_color,
+    # draw jitter on the left
+    side = "l",
+    # control range of jitter
+    range_scale = .4,
+    # add some transparency
+    alpha = .5,
+  )  + labs(x = "Species", y = "Visit time (s)") + 
+    theme(axis.text.x = element_text(angle = 15, hjust = 1)) 
+
+mod <- lm(`Total_Visit_Time (s.ms)` ~ Hummer_Species, dat)
+
+summary(mod)
+
+```
+
+<!-- light green box -->
+
+::: {.alert .alert-success}
+
+# Takeaways {.unnumbered .unlisted}
+
+Based on statistical analysis, there is no evidence to conclude that Territorial hummingbird species spend more time feeding than Router hummingbird species. However, P. guy was shown to spend less time visiting Zingiber spectabile and less time feeding. P. Striigularis had a similar trend but nothing of significant finding. 
+
+::: 
+
+&nbsp;
+
+<!-- '---' adds a gray vertical line -->
+
+---
+
+&nbsp; 
+ 
+ <!-- add packages used, system details and versions  -->
+ 
+# Session information {.unnumbered .unlisted}
+
+```{r session info, echo=F}
+
+sessionInfo()
+
+```

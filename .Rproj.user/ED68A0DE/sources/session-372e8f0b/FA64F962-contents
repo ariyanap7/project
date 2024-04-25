@@ -2,9 +2,108 @@
 title: "PostBacc Project"
 format: html
 editor: Ariyana Parker
+editor_options: 
+  chunk_output_type: console
 ---
 
+# Load packages
 ```{r}
-library(leaflet)
+
+library(sketchy)
+
+load_packages(packages = c("readxl", "ggplot2", "viridis", "ggdist", "gghalves"))
+
+```
+
+
+# Read data
+
+```{r}
+
+dat <- read_xlsx("./data/raw/CS Datasheet.xlsx", na = "N/A")
+
+
+```
+
+
+# Format data
+```{r}
+
+str(dat)
+
+# fix species names
+dat$Hummer_Species <- gsub("Phaethornis Guy", "Phaethornis guy", dat$Hummer_Species)
+
+dat <- dat[dat$Hummer_Species != "UNK", ]
+
+table(dat$Hummer_Species)
+
+dat$Num_Probed_Flowers <- as.numeric(dat$Num_Probed_Flowers)
+dat$`Time_Probed (s.ms)` <- as.numeric(dat$`Time_Probed (s.ms)`)
+
+dat$prop.probed <- dat$`Time_Probed (s.ms)` / dat$`Total_Visit_Time (s.ms)`
+
+dat <- dat[dat$prop.probed <= 1, ]
+
+dat <- dat[!is.na(dat$Hummer_Species), ]
+
+dat$strategy <- ifelse(dat$Hummer_Species %in% c("Phaethornis Striigularis", "Phaethornis guy"), "Router", "Territorial")
+
+dat$Hummer_Species <- factor(dat$Hummer_Species, levels = c( "Amazilia Tzactl", "Thalurania Colombica",          "Phaethornis Striigularis", "Phaethornis guy"))
+
+```
+
+
+# Exploratory graphs
+
+```{r}
+
+cols <- viridis(10)
+
+# agg_dat <- aggregate(time_to_enter ~ sensory_input, dat, mean)
+# agg_dat$n <- sapply(1:nrow(agg_dat), function(x) length(unique(dat$individual[dat$sensory_input == agg_dat$sensory_input[x]]))) 
+# agg_dat$n.labels <- paste("n =", agg_dat$n)
+# agg_dat$sensory_input <- factor(agg_dat$sensory_input)
+
+# raincoud plot:
+fill_color <- adjustcolor("#B4DE2C99", 0.6)
+
+ggplot(dat, aes(y = prop.probed, x = Hummer_Species, fill = strategy)) +
+    
+    # add half-violin from {ggdist} package
+  ggdist::stat_halfeye(
+    # fill = fill_color,
+    alpha = 0.5,
+    # custom bandwidth
+    adjust = .5,
+    # adjust height
+    width = .6,
+    .width = 0,
+    # move geom to the cright
+    justification = -.2,
+    point_colour = NA
+  ) +
+    scale_fill_viridis_d(begin = 0.2, end = 0.8) +
+    # scale_color_viridis_d(begin = 0.2, end = 0.8) +
+  geom_boxplot(
+      # fill = fill_color,
+    width = .15,
+    # remove outliers
+    outlier.shape = NA # `outlier.shape = NA` works as well
+  ) +
+  # add justified jitter from the {gghalves} package
+  gghalves::geom_half_point(
+    # color = fill_color,
+    # draw jitter on the left
+    side = "l",
+    # control range of jitter
+    range_scale = .4,
+    # add some transparency
+    alpha = .5,
+  )  + labs(x = "Species", y = "Proportion of\ntime feeding") + 
+    theme(axis.text.x = element_text(angle = 15, hjust = 1)) 
+
+
+
 ```
 
