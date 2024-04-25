@@ -12,9 +12,14 @@ species. The purpose of statistical analysis of this prior data within
 this project is to observe behavioral feeding patterns in Router
 hummingbird species versus Territorial hummingbird species.
 
-*Updated on 2024-04-25 17:01:28.48972*
+*Updated on 2024-04-25 17:06:22.982761*
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# Stats
+
+- [Flower visitation behavior by
+  strategy](https://rpubs.com/ariyanap7/1178382)
 
 ## Contact
 
