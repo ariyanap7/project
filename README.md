@@ -1,43 +1,21 @@
-project_open_science
+Analysis of Hummingbird Feeders & Zingiber spectabile
 ================
-AUTOR NAME
-2024-04-25
+Ariyana Parker
+`4/25/2024`
 
 <!-- Short Description  -->
 
-This is a short description of the project
+This project uses collected data from camera trap videos documenting
+visits from multiple hummingbird species to the plant Zingiber
+spectabile in order to analyze pollinator patterns in invasive plant
+species. The purpose of statistical analysis of this prior data within
+this project is to observe behavioral feeding patterns in Router
+hummingbird species versus Territorial hummingbird species.
 
-*Updated on 2024-04-25 13:56:07.178223*
+*Updated on 2024-04-25 17:01:28.48972*
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-## Table of contents
-
-- [General info](#general-info)
-  - [Analyses](#Analyses)
-    - [To do list](#to-do-list)
-      - [Contact](#contact)
-
-## General info
-
-General information about the project (study system, goals, etc)
-
-## Analysis
-
-- Analysis 1
-
-## In progress
-
-- Something not finished yet
-
-## To-do list
-
-- Do the next analysis
-
-## Status
-
-Project is: *in progress*
-
 ## Contact
 
-Created by [Autor name](website_URL)
+Created by [Ariyana Parker](website_URL)

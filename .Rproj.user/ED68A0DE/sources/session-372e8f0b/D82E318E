@@ -3,7 +3,7 @@
     "path": "C:/Users/ariya/OneDrive/Desktop/OTS_REU_OS_2024/project_open_science/scripts/stats.qmd",
     "project_path": "scripts/stats.qmd",
     "type": "quarto_markdown",
-    "hash": "2255229292",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1714081942510.0,
@@ -12,8 +12,8 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "66,16",
-        "scrollLine": "59",
+        "cursorPosition": "1,7",
+        "scrollLine": "0",
         "chunk_output_type": "console"
     },
     "folds": "",
